@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd ">
+	
+	<named-query name="RegistroCapacidad.findByFiltro">
+		<query>
+			<![CDATA[
+				SELECT 	new ConsultaRegistroCapacidad(
+						c.idColaborador,
+						c.colaborador,
+						c.fabrica,
+						c.torre,
+						c.areaConocimiento,
+						c.ubicacion,
+						c.division,
+						CASE 
+							WHEN c.horasSemana1 IS NOT NULL THEN c.horasSemana1
+							ELSE :semana1 
+						END,
+						CASE 
+							WHEN c.horasSemana2 IS NOT NULL THEN c.horasSemana2
+							ELSE :semana2 
+						END,
+						CASE 
+							WHEN c.horasSemana3 IS NOT NULL THEN c.horasSemana3
+							ELSE :semana3 
+						END,
+						CASE 
+							WHEN c.horasSemana4 IS NOT NULL THEN c.horasSemana4
+							ELSE :semana4 
+						END,
+						CASE 
+							WHEN c.horasSemana5 IS NOT NULL THEN c.horasSemana5
+							ELSE :semana5 
+						END,
+						CASE
+							WHEN c.mesIncidente = :mes THEN c.horasIncidente
+							ELSE 0
+						END,
+						c.capacidadOtraFabrica,
+						c.idGerente,
+						c.idRegistroCapacidad,
+						c.mes,
+						c.idAreaConocimiento,
+						c.idFabrica,
+						c.idDivision,
+						c.idTorre,
+						CASE 
+							WHEN c.gerente = :usuario THEN true
+							WHEN c.usuarioPermiso = :usuario THEN true
+							ELSE false
+						END)
+				FROM ConsultaRegistroCapacidad c
+				WHERE 	c.idGerente = :idGerente
+				AND		((c.idRegistroCapacidad IS NOT NULL
+							AND c.mes = :mes)
+						OR c.idRegistroCapacidad IS NULL)
+				AND		(c.mesIncidente IS NULL OR (c.mesIncidente IS NOT NULL AND c.mesIncidente = :mes))
+				AND		(:idDivision = -1 OR (c.idDivision <> -1 AND c.idDivision = :idDivision))
+				AND		(:idFabrica = -1 OR (c.idFabrica <> -1 AND c.idFabrica = :idFabrica))
+				AND		(:idAreaConocimiento = -1 OR (c.idAreaConocimiento <> -1 AND c.idAreaConocimiento = :idAreaConocimiento))
+				AND		(:idColaborador = -1 OR (c.idColaborador <> -1 AND c.idColaborador = :idColaborador))
+				ORDER BY c.fabrica,
+						 c.torre,
+						 c.colaborador
+
+			]]>			
+		</query>
+	</named-query>
+
+	<named-native-query name="RegistroCapacidad.findHorasHabiles" result-class="com.hitss.swf.hco.model.capacidad.HoraHabil">
+		<query>
+			<![CDATA[
+				SELECT 	to_char(DIA,'IW') ID,
+						(COUNT(1) * :horasHabiles) HORAS
+				FROM generate_series(
+					CAST(:mes AS timestamp), 
+					(CAST(:mes AS timestamp) + INTERVAL '1 MONTH - 1 day'), 
+					'1 day') AS DATES(DIA)
+				WHERE to_char(DIA, 'D') NOT IN('1','7')
+				GROUP BY to_char(DIA,'IW')
+				ORDER BY to_char(DIA,'IW')
+			]]>
+    	</query>
+    </named-native-query>
+   
+</entity-mappings>

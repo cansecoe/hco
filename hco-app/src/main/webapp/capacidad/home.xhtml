@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+	<h:outputStylesheet name="jquery-ui.css" />
+
+</h:head>
+<h:body>
+
+	<h:form id="busqueda">
+
+		<p:growl id="msgs" showDetail="true" sticky="true" />
+		
+		<div>
+			<h:outputLabel value="#{etiquetas.tlt_capacidad_home}" />
+		</div>
+
+		<p:panelGrid columns="4" layout="grid">
+			<p:outputLabel for="gerente" value="#{etiquetas.lbl_gerente}" />
+			<p:selectOneMenu id="gerente"
+				value="#{capacidadBean.filtro.idGerente}" effect="fold" required="true">
+				<f:selectItem itemLabel="#{etiquetas.lbl_todos}" itemValue="" />
+				<f:selectItems value="#{capacidadBean.gerentes}" var="gerente"
+					itemLabel="#{gerente.claveIniciales}" itemValue="#{gerente.id}" />
+				<p:ajax event="change" update="fabrica, division, areaConocimiento"
+					listener="#{capacidadBean.seleccionarGerente}" />
+			</p:selectOneMenu>
+			<p:outputLabel for="mes" value="#{etiquetas.lbl_mes}" />
+			<p:selectOneMenu id="mes" value="#{capacidadBean.filtro.mes}"
+				effect="fold" required="true">
+				<f:selectItems value="#{capacidadBean.meses}" />
+			</p:selectOneMenu>
+			<p:outputLabel for="colaborador"
+				value="#{etiquetas.lbl_colaborador}" />
+			<p:selectOneMenu id="colaborador"
+				value="#{capacidadBean.filtro.idColaborador}" effect="fold">
+				<f:selectItem itemLabel="#{etiquetas.lbl_todos}" itemValue="-1" />
+				<f:selectItems value="#{capacidadBean.colaboradores}" var="colaborador"
+					itemLabel="#{colaborador.nombre} #{colaborador.apellidoPaterno} #{colaborador.apellidoMaterno}" itemValue="#{colaborador.id}" />
+			</p:selectOneMenu>
+			<p:outputLabel for="fabrica" value="#{etiquetas.lbl_fabrica}:" />
+			<p:selectOneMenu id="fabrica"
+				value="#{capacidadBean.filtro.idFabrica}" effect="fold">
+				<f:selectItem itemLabel="#{etiquetas.lbl_todos}" itemValue="-1" />
+				<f:selectItems value="#{capacidadBean.fabricas}" var="fabrica"
+					itemLabel="#{fabrica.nombre}" itemValue="#{fabrica.id}" />
+				<p:ajax event="change" update="colaborador"
+					listener="#{capacidadBean.seleccionarFabrica}" />
+			</p:selectOneMenu>
+			<p:outputLabel for="areaConocimiento"
+				value="#{etiquetas.lbl_area_conocimiento}" />
+			<p:selectOneMenu id="areaConocimiento"
+				value="#{capacidadBean.filtro.idAreaConocimiento}" effect="fold">
+				<f:selectItem itemLabel="#{etiquetas.lbl_todos}" itemValue="-1" />
+				<f:selectItems value="#{capacidadBean.areasConocimiento}" var="area"
+					itemLabel="#{area.nombre}" itemValue="#{area.id}" />
+			</p:selectOneMenu>
+			<p:outputLabel for="division" value="#{etiquetas.lbl_division}" />
+			<p:selectOneMenu id="division"
+				value="#{capacidadBean.filtro.idDivision}" effect="fold">
+				<f:selectItem itemLabel="#{etiquetas.lbl_todos}" itemValue="-1" />
+				<f:selectItems value="#{capacidadBean.divisiones}" var="division"
+					itemLabel="#{division.codigo}" itemValue="#{division.id}" />
+			</p:selectOneMenu>
+
+			<p:commandButton value="#{etiquetas.lbl_buscar}" update="capacidad, msgs"
+				actionListener="#{capacidadBean.buscarOcupacion}" />
+		</p:panelGrid>
+
+		<p:dataTable id="capacidad" var="cap"
+			value="#{capacidadBean.capacidad.capacidades}" editable="true" editMode="cell" 
+			selection="#{capacidadBean.registroCapacidad}" rowKey="#{cap.idColaborador}">
+
+			<p:ajax event="cellEdit" listener="#{capacidadBean.editarCapacidad}"
+				update=":busqueda:msgs, capacidadProductiva, capacidadMensual" />
+				
+			<p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+        	
+			<p:column headerText="#{etiquetas.lbl_colaborador}">
+				<h:outputText value="#{cap.colaborador}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_fabrica}">
+				<h:outputText value="#{cap.fabrica}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_torre}">
+				<h:outputText value="#{cap.torre}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_area_conocimiento}">
+				<h:outputText value="#{cap.areaConocimiento}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_ubicacion}">
+				<h:outputText value="#{cap.ubicacion}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_division}">
+				<h:outputText value="#{cap.division}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semana_1}">
+				<p:cellEditor rendered="#{cap.edicion}">
+					<f:facet name="output">
+						<h:outputText value="#{cap.horasSemana1}" />
+					</f:facet>
+					<f:facet name="input">
+						<p:inputText value="#{cap.horasSemana1}" style="width:100%"
+							label="#{etiquetas.lbl_semana_1}" >
+							<p:ajax event="change" 
+                        		update="capacidadMensual, capacidadProductiva"
+                        		global="false"/>
+						</p:inputText>
+					</f:facet>
+				</p:cellEditor>
+				<h:outputText value="#{cap.horasSemana1}" rendered="#{!cap.edicion}"/>
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semana_2}">
+				<p:cellEditor rendered="#{cap.edicion}">
+					<f:facet name="output">
+						<h:outputText value="#{cap.horasSemana2}" />
+					</f:facet>
+					<f:facet name="input">
+						<p:inputText value="#{cap.horasSemana2}" style="width:100%"
+							label="#{etiquetas.lbl_semana_2}">
+							<p:ajax event="change" 
+                        		update="capacidadMensual, capacidadProductiva"
+                        		global="false"/>
+                        </p:inputText>
+					</f:facet>
+				</p:cellEditor>
+				<h:outputText value="#{cap.horasSemana2}" rendered="#{!cap.edicion}"/>
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semana_3}">
+				<p:cellEditor rendered="#{cap.edicion}">
+					<f:facet name="output">
+						<h:outputText value="#{cap.horasSemana3}" />
+					</f:facet>
+					<f:facet name="input">
+						<p:inputText value="#{cap.horasSemana3}" style="width:100%"
+							label="#{etiquetas.lbl_semana_3}">
+							<p:ajax event="change" 
+                        		update="capacidadMensual, capacidadProductiva"
+                        		global="false"/>
+                        	</p:inputText>
+					</f:facet>
+				</p:cellEditor>
+				<h:outputText value="#{cap.horasSemana3}" rendered="#{!cap.edicion}"/>
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semana_4}">
+				<p:cellEditor rendered="#{cap.edicion}">
+					<f:facet name="output">
+						<h:outputText value="#{cap.horasSemana4}" />
+					</f:facet>
+					<f:facet name="input">
+						<p:inputText value="#{cap.horasSemana4}" style="width:100%"
+							label="#{etiquetas.lbl_semana_4}">
+							<p:ajax event="change" 
+                        		update="capacidadMensual, capacidadProductiva"
+                        		global="false"/>
+                        </p:inputText>
+					</f:facet>
+				</p:cellEditor>
+				<h:outputText value="#{cap.horasSemana4}" rendered="#{!cap.edicion}"/>
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semana_5}">
+				<p:cellEditor rendered="#{cap.edicion}">
+					<f:facet name="output">
+						<h:outputText value="#{cap.horasSemana5}" />
+					</f:facet>
+					<f:facet name="input">
+						<p:inputText value="#{cap.horasSemana5}" style="width:100%"
+							label="#{etiquetas.lbl_semana_5}">
+							<p:ajax event="change" 
+                        		update="capacidadMensual, capacidadProductiva"
+                        		global="false"/>
+                        </p:inputText>
+					</f:facet>
+				</p:cellEditor>
+				<h:outputText value="#{cap.horasSemana5}" rendered="#{!cap.edicion}"/>
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_capacidad_rec_mensual}">
+				<h:outputText id="capacidadMensual" value="#{cap.capacidadMensual}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_incidencia_rec_mensual}">
+				<h:outputText value="#{cap.incidentes}" />
+
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_capacidad_productiva}">
+				<h:outputText id="capacidadProductiva" value="#{cap.capacidadProductiva}" />
+			</p:column>
+
+			<p:column headerText="#{etiquetas.lbl_semaforo}">
+				<p:graphicImage name="images/sem_azul.png" rendered="#{cap.capacidadOtraFabrica gt 0}" />
+				<p:graphicImage name="images/sem_verde.png" rendered="#{cap.capacidadOtraFabrica eq 0 and (cap.capacidadMensual eq capacidadBean.capacidad.capacidadMensual)}" />
+				<p:graphicImage name="images/sem_rojo.png" rendered="#{cap.capacidadOtraFabrica eq 0 and (cap.capacidadMensual gt capacidadBean.capacidad.capacidadMensual)}" />
+			</p:column>
+
+		</p:dataTable>
+		
+		<p:commandButton value="#{etiquetas.lbl_guardar}"
+				actionListener="#{capacidadBean.guardarOcupacion}" update="msgs">
+			<p:confirm header="#{mensajes.confirmacion}" message="#{mensajes.registro_capacidad_guardar}" icon="ui-icon-alert" />
+		</p:commandButton>
+		
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+	        <p:commandButton value="#{etiquetas.lbl_si}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+	        <p:commandButton value="#{etiquetas.lbl_no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+	    </p:confirmDialog>
+				
+	</h:form>
+
+</h:body>
+</html>

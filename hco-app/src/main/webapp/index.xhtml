@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<h:form>
+		<p:selectOneMenu id="usuario" value="#{login.numeroEmpleado}">
+			<f:selectItem itemLabel="Director" itemValue="40-581" />
+			<f:selectItem itemLabel="Gerente 1" itemValue="40-580" />
+			<f:selectItem itemLabel="Gerente 2" itemValue="34-001" />
+		</p:selectOneMenu>
+		
+		<p:button outcome="capacidad/home" value="Entrar" onclick="submit()" />
+	</h:form>
+ 
+</h:body>
+</html>
